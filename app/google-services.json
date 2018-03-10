@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "26274809525",
+    "firebase_url": "https://kotlintodo-8270d.firebaseio.com",
+    "project_id": "kotlintodo-8270d",
+    "storage_bucket": "kotlintodo-8270d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:26274809525:android:ed58ec876ca003d3",
+        "android_client_info": {
+          "package_name": "com.example.anna.todo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "26274809525-62rm7k8tja97h93qbrtnlqmhl8et34ai.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.anna.todo",
+            "certificate_hash": "13a6f65ea3cf379131c3eb234f3ba6beea4c5694"
+          }
+        },
+        {
+          "client_id": "26274809525-mhcce45g1gn961fijjj66cfcr0j8qgei.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAuv6zNDZAzjfmzsvUDNFQpDtfrcuBwbRI"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "26274809525-mhcce45g1gn961fijjj66cfcr0j8qgei.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
