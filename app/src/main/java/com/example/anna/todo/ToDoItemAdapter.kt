@@ -1,7 +1,6 @@
 package com.example.anna.todo
 
 import android.content.Context
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,6 +20,7 @@ class ToDoItemAdapter(context: Context, toDoItemList: MutableList<ToDoItem>): Ba
     // var is like general variable and its known as a mutable variable in kotlin and can be
     // assigned multiple times
     private var itemList = toDoItemList
+    private var rowListener: ItemRowListener = context as ItemRowListener
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
 
@@ -44,6 +44,15 @@ class ToDoItemAdapter(context: Context, toDoItemList: MutableList<ToDoItem>): Ba
         listRowHolder.label.text = itemText
         listRowHolder.isDone.isChecked = done
 
+        listRowHolder.isDone.setOnClickListener {
+            this.rowListener.modifyItemState(objectId, !done)
+        }
+
+        listRowHolder.deleteButton.setOnClickListener{
+            this.rowListener.onItemDelete(objectId)
+        }
+
+
         return view
     }
 
@@ -63,7 +72,7 @@ class ToDoItemAdapter(context: Context, toDoItemList: MutableList<ToDoItem>): Ba
     private class ListRowHolder(row: View?) {
         val label: TextView = row!!.findViewById<TextView>(R.id.tv_item_text) as TextView
         val isDone: CheckBox = row!!.findViewById<CheckBox>(R.id.cb_item_is_done) as CheckBox
-        val imageButtonDeleteObject: ImageButton = row!!.findViewById<ImageButton>(R.id.iv_cross)
+        val deleteButton: ImageButton = row!!.findViewById<ImageButton>(R.id.iv_cross)
                 as ImageButton
     }
 
