@@ -11,7 +11,7 @@ import android.widget.Toast
 import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.activity_main.*
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), ItemRowListener {
     // get Access to Firebase database, no need of any URL, Firebase identifies the connection via
     // the package name of the app
     private lateinit var database: DatabaseReference
@@ -76,7 +76,7 @@ class MainActivity : AppCompatActivity() {
         alert.show()
     }
 
-    var itemListener: ValueEventListener = object : ValueEventListener {
+    private var itemListener: ValueEventListener = object : ValueEventListener {
         override fun onDataChange(dataSnapshot: DataSnapshot) {
             // get Post object and use the values to update the UI
             addDataToList(dataSnapshot)
@@ -115,5 +115,23 @@ class MainActivity : AppCompatActivity() {
 
         // alert adapter that data has changed
         this.adapter.notifyDataSetChanged()
+    }
+
+    // implement methods from ItemRowListener interface
+    override fun modifyItemState(itemObjectId: String, isDone: Boolean) {
+        val itemReference = this.getDatabaseReference(itemObjectId)
+        itemReference.child("done").setValue(isDone)
+    }
+
+    override fun onItemDelete(itemObjectId: String) {
+        // get child reference in database using objectId
+        val itemReference = this.getDatabaseReference(itemObjectId)
+
+        // remove the value from the database
+        itemReference.removeValue()
+    }
+
+    private fun getDatabaseReference(itemObjectId: String): DatabaseReference {
+        return this.database.child(Constants.FIREBASE_ITEM).child(itemObjectId)
     }
 }
