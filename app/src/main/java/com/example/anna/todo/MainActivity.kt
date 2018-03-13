@@ -9,14 +9,13 @@ import android.widget.EditText
 import android.widget.ListView
 import android.widget.Toast
 import com.google.firebase.database.*
-import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity(), ItemRowListener {
     // get Access to Firebase database, no need of any URL, Firebase identifies the connection via
     // the package name of the app
     private lateinit var database: DatabaseReference
     private var toDoItemList: MutableList<ToDoItem>? = null
-    private lateinit var adapter: ToDoItemAdapter
+    private lateinit var toDoAdapter: ToDoItemAdapter
     private var listViewItems: ListView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,9 +32,9 @@ class MainActivity : AppCompatActivity(), ItemRowListener {
         }
 
         this.database = FirebaseDatabase.getInstance().reference
-        this.toDoItemList = mutableListOf<ToDoItem>()
-        this.adapter = ToDoItemAdapter(this, this.toDoItemList!!)
-        this.listViewItems!!.adapter = this.adapter
+        this.toDoItemList = mutableListOf()
+        this.toDoAdapter = ToDoItemAdapter(this, this.toDoItemList!!)
+        this.listViewItems!!.adapter = this.toDoAdapter
 
         // fetch items from the database
         // add a listener for current database which will fetch and alert the function when the data
@@ -43,34 +42,31 @@ class MainActivity : AppCompatActivity(), ItemRowListener {
         this.database.orderByKey().addListenerForSingleValueEvent(this.itemListener)
     }
 
-    /*
-     * This method shows a dialog box where the user can enter a new item to add to their To Do list.
-     */
+
+    // Shows a dialog box where the user can enter a new item to add to their To Do list.
     private fun addNewItemDialog() {
         val alert = AlertDialog.Builder(this)
         val itemEditText = EditText(this)
 
-        alert.setMessage("Add New Item")
-        alert.setTitle("Enter To Do Item")
+        alert.setMessage(Constants.ADD_NEW_ITEM)
+        alert.setTitle(Constants.ENTER_ITEM)
 
         alert.setView(itemEditText)
 
         alert.setPositiveButton("Submit") {dialog, positiveButton ->
-            // Create new todoItem instance, initialised with default values
-            val todoItem = ToDoItem.create()
-            todoItem.itemText = itemEditText.text.toString()
-            todoItem.done = false
+            // Create new toDoItem instance, initialised with itemText and done
+            val toDoItem = ToDoItem(itemEditText.text.toString(), false)
 
             // Make a push to the database so that a new item is made with a unique id
             // Using push() method, get a new id from Firebase which is set on the todoItem
             val newItem = this.database.child(Constants.FIREBASE_ITEM).push()
-            todoItem.objectId = newItem.key
+            toDoItem.objectId = newItem.key
 
-            // todoItem is saved in Firebase database
-            newItem.setValue(todoItem)
+            // toDoItem is saved in Firebase database
+            newItem.setValue(toDoItem)
 
             dialog.dismiss()
-            Toast.makeText(this, "Item saved with id " + todoItem.objectId,
+            Toast.makeText(this, "Item saved with id " + toDoItem.objectId,
                     Toast.LENGTH_SHORT).show()
         }
         alert.show()
@@ -79,6 +75,7 @@ class MainActivity : AppCompatActivity(), ItemRowListener {
     private var itemListener: ValueEventListener = object : ValueEventListener {
         override fun onDataChange(dataSnapshot: DataSnapshot) {
             // get Post object and use the values to update the UI
+            Log.d(localClassName, "New item added")
             addDataToList(dataSnapshot)
         }
         override fun onCancelled(databaseError: DatabaseError) {
@@ -88,33 +85,26 @@ class MainActivity : AppCompatActivity(), ItemRowListener {
     }
 
     fun addDataToList(dataSnapshot: DataSnapshot) {
-        val items = dataSnapshot.children.iterator()
+        if (dataSnapshot != null) {
+            Log.d(this.localClassName, "Item added")
+            val toDoList = arrayListOf<ToDoItem>()
 
-        // check if current database contains any collection
-        if(items.hasNext()) {
-            val toDoListIndex = items.next()
-            val itemsIterator = toDoListIndex.children.iterator()
+            for (item in dataSnapshot.children) {
+                val map = item.value as HashMap<String, Any>
+                val itemText = map["itemText"] as String?
+                val done = map["done"] as Boolean?
 
-            // check if the collection has any to do items or not
-            while (itemsIterator.hasNext()) {
-                // get current item
-                val currentItem = itemsIterator.next()
-                val toDoItem = ToDoItem.create()
+                if (itemText != null && done != null) {
+                    val newItem = ToDoItem(itemText, done)
+                    newItem.objectId = item.key
 
-                // get current data in a map
-                val map = currentItem.getValue() as HashMap<String, Any>
-
-                // key will return Firebase id
-                toDoItem.objectId = currentItem.key
-                toDoItem.done = map["done"] as Boolean?
-                toDoItem.itemText = map["itemText"] as String?
-
-                this.toDoItemList!!.add(toDoItem)
+                    toDoList.add(newItem)
+                }
             }
-        }
 
-        // alert adapter that data has changed
-        this.adapter.notifyDataSetChanged()
+            // alert adapter that data has changed
+            this.toDoAdapter.setList(toDoList)
+        }
     }
 
     // implement methods from ItemRowListener interface
