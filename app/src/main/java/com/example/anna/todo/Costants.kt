@@ -5,5 +5,7 @@ package com.example.anna.todo
  */
 
 object Constants{
-    @JvmStatic val FIREBASE_ITEM: String = "todo_item"
+    const val FIREBASE_ITEM: String = "todo_item"
+    const val ADD_NEW_ITEM: String = "Add New Item"
+    const val ENTER_ITEM: String = "Enter To Do Item"
 }
