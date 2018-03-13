@@ -13,7 +13,6 @@ import android.widget.TextView
  * Created by anna on 3/10/18.
  */
 class ToDoItemAdapter(context: Context, toDoItemList: MutableList<ToDoItem>): BaseAdapter() {
-
     // val is like constant variable and its known as immutable in kotlin and can be initialized
     // only single time
     private val inflater: LayoutInflater = LayoutInflater.from(context)
@@ -31,6 +30,7 @@ class ToDoItemAdapter(context: Context, toDoItemList: MutableList<ToDoItem>): Ba
         val view: View
         val listRowHolder: ListRowHolder
         if(convertView == null) {
+            // inflate data model layout to View object
             view = this.inflater.inflate(R.layout.row_items, parent, false)
             listRowHolder = ListRowHolder(view)
             view.tag = listRowHolder
@@ -40,6 +40,7 @@ class ToDoItemAdapter(context: Context, toDoItemList: MutableList<ToDoItem>): Ba
             listRowHolder = view.tag as ListRowHolder
         }
 
+        // set value to View object
         // populate items with data
         listRowHolder.label.text = itemText
         listRowHolder.isDone.isChecked = done
@@ -51,7 +52,6 @@ class ToDoItemAdapter(context: Context, toDoItemList: MutableList<ToDoItem>): Ba
         listRowHolder.deleteButton.setOnClickListener{
             this.rowListener.onItemDelete(objectId)
         }
-
 
         return view
     }
@@ -68,7 +68,7 @@ class ToDoItemAdapter(context: Context, toDoItemList: MutableList<ToDoItem>): Ba
         return this.itemList.size
     }
 
-    // Define ListRowHOlder to contain items for the UI
+    // Define ListRowHolder to contain items for the UI
     private class ListRowHolder(row: View?) {
         val label: TextView = row!!.findViewById<TextView>(R.id.tv_item_text) as TextView
         val isDone: CheckBox = row!!.findViewById<CheckBox>(R.id.cb_item_is_done) as CheckBox
@@ -76,4 +76,13 @@ class ToDoItemAdapter(context: Context, toDoItemList: MutableList<ToDoItem>): Ba
                 as ImageButton
     }
 
+    fun addItemToList(newItem: ToDoItem) {
+        this.itemList.plus(newItem)
+        notifyDataSetChanged()
+    }
+
+    fun setList(toDoList: MutableList<ToDoItem>) {
+        this.itemList = toDoList
+        notifyDataSetChanged()
+    }
 }
