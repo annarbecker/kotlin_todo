@@ -13,7 +13,7 @@ import com.google.firebase.database.*
 class MainActivity : AppCompatActivity(), ItemRowListener {
     // get Access to Firebase database, no need of any URL, Firebase identifies the connection via
     // the package name of the app
-    private lateinit var database: DatabaseReference
+    private lateinit var databaseReference: DatabaseReference
     private var toDoItemList: MutableList<ToDoItem>? = null
     private lateinit var toDoAdapter: ToDoItemAdapter
     private var listViewItems: ListView? = null
@@ -31,15 +31,13 @@ class MainActivity : AppCompatActivity(), ItemRowListener {
             this.addNewItemDialog()
         }
 
-        this.database = FirebaseDatabase.getInstance().reference
+        this.databaseReference = FirebaseDatabase.getInstance().reference
         this.toDoItemList = mutableListOf()
         this.toDoAdapter = ToDoItemAdapter(this, this.toDoItemList!!)
         this.listViewItems!!.adapter = this.toDoAdapter
 
         // fetch items from the database
-        // add a listener for current database which will fetch and alert the function when the data
-        // has been fetched
-        this.database.orderByKey().addListenerForSingleValueEvent(this.itemListener)
+        this.databaseReference.orderByKey().addListenerForSingleValueEvent(this.itemListener)
     }
 
 
@@ -54,12 +52,13 @@ class MainActivity : AppCompatActivity(), ItemRowListener {
         alert.setView(itemEditText)
 
         alert.setPositiveButton("Submit") {dialog, positiveButton ->
-            // Create new toDoItem instance, initialised with itemText and done
-            val toDoItem = ToDoItem(itemEditText.text.toString(), false)
+            // Create new toDoItem instance
+            val toDoItem = ToDoItem.create()
+            toDoItem.itemText = itemEditText.text.toString()
 
             // Make a push to the database so that a new item is made with a unique id
             // Using push() method, get a new id from Firebase which is set on the todoItem
-            val newItem = this.database.child(Constants.FIREBASE_ITEM).push()
+            val newItem = this.databaseReference.child(Constants.FIREBASE_ITEM).push()
             toDoItem.objectId = newItem.key
 
             // toDoItem is saved in Firebase database
@@ -68,49 +67,70 @@ class MainActivity : AppCompatActivity(), ItemRowListener {
             dialog.dismiss()
             Toast.makeText(this, "Item saved with id " + toDoItem.objectId,
                     Toast.LENGTH_SHORT).show()
+
+            // add listener for items added after to do list is created
+            this.databaseReference.orderByKey().addListenerForSingleValueEvent(this.itemListener)
+
         }
         alert.show()
     }
 
     private var itemListener: ValueEventListener = object : ValueEventListener {
         override fun onDataChange(dataSnapshot: DataSnapshot) {
-            // get Post object and use the values to update the UI
-            Log.d(localClassName, "New item added")
-            addDataToList(dataSnapshot)
+            // update UI with database changes (item added/removed/done state changed)
+            Log.d(localClassName, "Populate to do list")
+
+            updateToDoListData(dataSnapshot)
         }
-        override fun onCancelled(databaseError: DatabaseError) {
+
+        override fun onCancelled(databaseError: DatabaseError?) {
             // Getting Item failed, log a message
-            Log.w("MainActivity", "loadItem:onCancelled", databaseError.toException())
+            Log.w("MainActivity", "loadItem:onCancelled", databaseError!!.toException())
         }
     }
 
-    fun addDataToList(dataSnapshot: DataSnapshot) {
-        if (dataSnapshot != null) {
-            Log.d(this.localClassName, "Item added")
-            val toDoList = arrayListOf<ToDoItem>()
+    fun updateToDoListData(dataSnapshot: DataSnapshot) {
+        val items = dataSnapshot.children.iterator()
 
-            for (item in dataSnapshot.children) {
-                val map = item.value as HashMap<String, Any>
-                val itemText = map["itemText"] as String?
-                val done = map["done"] as Boolean?
+        // check if current database contains any collection
+        if(items.hasNext()) {
+            // clear the list
+            this.toDoItemList!!.clear()
 
-                if (itemText != null && done != null) {
-                    val newItem = ToDoItem(itemText, done)
-                    newItem.objectId = item.key
+            val toDoListIndex = items.next()
+            val itemsIterator = toDoListIndex.children.iterator()
 
-                    toDoList.add(newItem)
-                }
+            // check if the collection has any to do items or not
+            while (itemsIterator.hasNext()) {
+                // get current item
+                val currentItem = itemsIterator.next()
+                val toDoItem = ToDoItem.create()
+
+                // get current data in a map
+                val map = currentItem.value as HashMap<String, Any>
+
+                // key will return Firebase id
+                toDoItem.objectId = currentItem.key
+                toDoItem.done = map["done"] as Boolean?
+                toDoItem.itemText = map["itemText"] as String?
+
+                // add item to list
+                this.toDoItemList!!.add(toDoItem)
             }
-
-            // alert adapter that data has changed
-            this.toDoAdapter.setList(toDoList)
         }
+
+        // alert adapter that data has changed
+        this.toDoAdapter.notifyDataSetChanged()
     }
 
     // implement methods from ItemRowListener interface
     override fun modifyItemState(itemObjectId: String, isDone: Boolean) {
         val itemReference = this.getDatabaseReference(itemObjectId)
         itemReference.child("done").setValue(isDone)
+
+        // add listener for items removed after to do list is created
+        this.databaseReference.orderByKey().addListenerForSingleValueEvent(this.itemListener)
+
     }
 
     override fun onItemDelete(itemObjectId: String) {
@@ -119,9 +139,17 @@ class MainActivity : AppCompatActivity(), ItemRowListener {
 
         // remove the value from the database
         itemReference.removeValue()
+
+        // add listener for item done state change after to do list is created
+        this.databaseReference.orderByKey().addListenerForSingleValueEvent(this.itemListener)
     }
 
     private fun getDatabaseReference(itemObjectId: String): DatabaseReference {
-        return this.database.child(Constants.FIREBASE_ITEM).child(itemObjectId)
+        return this.databaseReference.child(Constants.FIREBASE_ITEM).child(itemObjectId)
+    }
+
+    override fun onDestroy() {
+        this.databaseReference.removeEventListener(this.itemListener)
+        super.onDestroy()
     }
 }
