@@ -75,14 +75,4 @@ class ToDoItemAdapter(context: Context, toDoItemList: MutableList<ToDoItem>): Ba
         val deleteButton: ImageButton = row!!.findViewById<ImageButton>(R.id.iv_cross)
                 as ImageButton
     }
-
-    fun addItemToList(newItem: ToDoItem) {
-        this.itemList.plus(newItem)
-        notifyDataSetChanged()
-    }
-
-    fun setList(toDoList: MutableList<ToDoItem>) {
-        this.itemList = toDoList
-        notifyDataSetChanged()
-    }
 }
