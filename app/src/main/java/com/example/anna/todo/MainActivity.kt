@@ -7,11 +7,12 @@ import android.util.Log
 import android.view.View
 import android.widget.EditText
 import android.widget.ListView
+import android.widget.Spinner
 import android.widget.Toast
 import com.google.firebase.database.*
 
 class MainActivity : AppCompatActivity(), ItemRowListener {
-    // get Access to Firebase database, no need of any URL, Firebase identifies the connection via
+    // get access to Firebase database, no need of any URL, Firebase identifies the connection via
     // the package name of the app
     private lateinit var databaseReference: DatabaseReference
     private var toDoItemList: MutableList<ToDoItem>? = null
@@ -22,12 +23,12 @@ class MainActivity : AppCompatActivity(), ItemRowListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        //define floating action button
+        // define floating action button
         val floatingActionButton = this.findViewById<View>(R.id.floatingActionButton)
         this.listViewItems = findViewById<View>(R.id.items_list) as ListView
 
         // set a click listener on the button
-        floatingActionButton.setOnClickListener { view ->
+        floatingActionButton.setOnClickListener { _ ->
             this.addNewItemDialog()
         }
 
@@ -40,8 +41,7 @@ class MainActivity : AppCompatActivity(), ItemRowListener {
         this.databaseReference.orderByKey().addListenerForSingleValueEvent(this.itemListener)
     }
 
-
-    // Shows a dialog box where the user can enter a new item to add to their To Do list.
+    // show a dialog box where the user can enter a new item to add to their To Do list
     private fun addNewItemDialog() {
         val alert = AlertDialog.Builder(this)
         val itemEditText = EditText(this)
@@ -51,22 +51,19 @@ class MainActivity : AppCompatActivity(), ItemRowListener {
 
         alert.setView(itemEditText)
 
-        alert.setPositiveButton("Submit") {dialog, positiveButton ->
-            // Create new toDoItem instance
+        alert.setPositiveButton("Submit") {dialog, _ ->
             val toDoItem = ToDoItem.create()
             toDoItem.itemText = itemEditText.text.toString()
 
-            // Make a push to the database so that a new item is made with a unique id
-            // Using push() method, get a new id from Firebase which is set on the todoItem
+            // make a push to the database so that a new item is made with a unique id
+            // using push() method, get a new id from Firebase which is set on the todoItem
             val newItem = this.databaseReference.child(Constants.FIREBASE_ITEM).push()
             toDoItem.objectId = newItem.key
-
+            
             // toDoItem is saved in Firebase database
             newItem.setValue(toDoItem)
 
             dialog.dismiss()
-            Toast.makeText(this, "Item saved with id " + toDoItem.objectId,
-                    Toast.LENGTH_SHORT).show()
 
             // add listener for items added after to do list is created
             this.databaseReference.orderByKey().addListenerForSingleValueEvent(this.itemListener)
@@ -78,18 +75,16 @@ class MainActivity : AppCompatActivity(), ItemRowListener {
     private var itemListener: ValueEventListener = object : ValueEventListener {
         override fun onDataChange(dataSnapshot: DataSnapshot) {
             // update UI with database changes (item added/removed/done state changed)
-            Log.d(localClassName, "Populate to do list")
-
             updateToDoListData(dataSnapshot)
         }
 
         override fun onCancelled(databaseError: DatabaseError?) {
-            // Getting Item failed, log a message
+            // getting item failed, log a message
             Log.w("MainActivity", "loadItem:onCancelled", databaseError!!.toException())
         }
     }
 
-    fun updateToDoListData(dataSnapshot: DataSnapshot) {
+    private fun updateToDoListData(dataSnapshot: DataSnapshot) {
         val items = dataSnapshot.children.iterator()
 
         // check if current database contains any collection
@@ -119,7 +114,7 @@ class MainActivity : AppCompatActivity(), ItemRowListener {
             }
         }
         else {
-            // If the database doesn't contain any items clear the list
+            // if the database doesn't contain any items clear the list
             this.toDoItemList!!.clear()
         }
 
