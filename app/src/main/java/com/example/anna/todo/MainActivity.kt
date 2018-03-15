@@ -118,6 +118,10 @@ class MainActivity : AppCompatActivity(), ItemRowListener {
                 this.toDoItemList!!.add(toDoItem)
             }
         }
+        else {
+            // If the database doesn't contain any items clear the list
+            this.toDoItemList!!.clear()
+        }
 
         // alert adapter that data has changed
         this.toDoAdapter.notifyDataSetChanged()
@@ -127,10 +131,6 @@ class MainActivity : AppCompatActivity(), ItemRowListener {
     override fun modifyItemState(itemObjectId: String, isDone: Boolean) {
         val itemReference = this.getDatabaseReference(itemObjectId)
         itemReference.child("done").setValue(isDone)
-
-        // add listener for items removed after to do list is created
-        this.databaseReference.orderByKey().addListenerForSingleValueEvent(this.itemListener)
-
     }
 
     override fun onItemDelete(itemObjectId: String) {
@@ -139,12 +139,11 @@ class MainActivity : AppCompatActivity(), ItemRowListener {
 
         // remove the value from the database
         itemReference.removeValue()
-
-        // add listener for item done state change after to do list is created
-        this.databaseReference.orderByKey().addListenerForSingleValueEvent(this.itemListener)
     }
 
     private fun getDatabaseReference(itemObjectId: String): DatabaseReference {
+        // add listener for items changed or removed after to do list is created
+        this.databaseReference.orderByKey().addListenerForSingleValueEvent(this.itemListener)
         return this.databaseReference.child(Constants.FIREBASE_ITEM).child(itemObjectId)
     }
 
