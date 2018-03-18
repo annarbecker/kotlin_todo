@@ -21,7 +21,7 @@ class MainActivityInstrumentationTest {
     val testRule: ActivityTestRule<MainActivity> = ActivityTestRule(MainActivity::class.java)
 
     @Test
-    fun opensItemEntryDialog() {
+    fun test_openNewItemEntryDialog() {
         Intents.init()
 
         onView(withId(R.id.addNewItemButton)).perform(click())
