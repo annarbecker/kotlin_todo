@@ -50,8 +50,7 @@ class MainActivity : AppCompatActivity(), ItemRowListener {
         alert.setView(itemEditText)
 
         alert.setPositiveButton(Constants.SUBMIT) {dialog, _ ->
-            val toDoItem = ToDoItem.create()
-            toDoItem.itemText = itemEditText.text.toString()
+            val toDoItem = this.createNewToDoItem(itemEditText.text.toString())
 
             // make a push to the database so that a new item is made with a unique id
             // using push() method, get a new id from Firebase which is set on the todoItem
@@ -68,6 +67,12 @@ class MainActivity : AppCompatActivity(), ItemRowListener {
 
         }
         alert.show()
+    }
+
+    public fun createNewToDoItem(itemText: String): ToDoItem {
+        val toDoItem = ToDoItem.create()
+        toDoItem.itemText = itemText
+        return toDoItem
     }
 
     private var itemListener: ValueEventListener = object : ValueEventListener {
