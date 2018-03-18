@@ -1,8 +1,8 @@
 package com.example.anna.todo
 
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v7.app.AlertDialog
+import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.View
 import android.widget.EditText
@@ -22,11 +22,11 @@ class MainActivity : AppCompatActivity(), ItemRowListener {
         setContentView(R.layout.activity_main)
 
         // define floating action button
-        val floatingActionButton = this.findViewById<View>(R.id.addNewItemButton)
+        val addnewItemButton = this.findViewById<View>(R.id.addNewItemButton)
         this.listViewItems = findViewById<View>(R.id.items_list) as ListView
 
         // set a click listener on the button
-        floatingActionButton.setOnClickListener { _ ->
+        addnewItemButton.setOnClickListener { _ ->
             this.addNewItemDialog()
         }
 
@@ -53,7 +53,7 @@ class MainActivity : AppCompatActivity(), ItemRowListener {
             val toDoItem = this.createNewToDoItem(itemEditText.text.toString())
 
             // make a push to the database so that a new item is made with a unique id
-            // using push() method, get a new id from Firebase which is set on the todoItem
+            // the new id is then set on the toDoItem
             val newItem = this.databaseReference.child(Constants.FIREBASE_ITEM).push()
             toDoItem.objectId = newItem.key
             

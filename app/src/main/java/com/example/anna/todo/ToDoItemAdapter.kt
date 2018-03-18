@@ -67,7 +67,7 @@ class ToDoItemAdapter(context: Context, toDoItemList: MutableList<ToDoItem>): Ba
         return this.itemList.size
     }
 
-    // Define ListRowHolder to contain items for the UI
+    // define ListRowHolder to contain items for the UI
     private class ListRowHolder(row: View?) {
         val label: TextView = row!!.findViewById(R.id.tv_item_text) as TextView
         val isDone: CheckBox = row!!.findViewById(R.id.cb_item_is_done) as CheckBox
