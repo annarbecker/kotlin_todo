@@ -1,33 +1,32 @@
 package com.example.anna.todo
 
-import java_cup.Main
+import android.content.Context
+import com.google.firebase.FirebaseApp
 import org.hamcrest.CoreMatchers.`is`
+import org.junit.Assert.assertThat
 import org.junit.Test
-
-import org.junit.Assert.*
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
-import org.robolectric.RobolectricGradleTestRunner
-import org.robolectric.annotation.Config
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
 
-@RunWith(RobolectricGradleTestRunner::class)
-@Config(constants = BuildConfig::class)
+@RunWith(RobolectricTestRunner::class)
 class MainActivityUnitTest {
 
 
     @Test
-    fun test_MainActivity() {
+    fun test_mainActivityTitle() {
+        val context: Context = RuntimeEnvironment.application.baseContext
+        FirebaseApp.initializeApp(context)
+
         val mainActivity = Robolectric.setupActivity(MainActivity::class.java)
-        val title = mainActivity.actionBar.title.toString()
-
-        assertThat(title, `is`("ToDo2"))
+        val title = mainActivity.title.toString()
+        assertThat(title, `is`("ToDo"))
     }
-
 
     @Test
     fun test_createNewToDoItem() {
         val mainActivity = MainActivity()
-
         val itemText = "Walk the dog"
 
         val toDoItem = mainActivity.createNewToDoItem(itemText)
