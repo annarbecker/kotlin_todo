@@ -24,12 +24,11 @@ class MainActivityInstrumentationTest {
     fun opensItemEntryDialog() {
         Intents.init()
 
-        onView(withId(R.id.floatingActionButton)).perform(click())
+        onView(withId(R.id.addNewItemButton)).perform(click())
         onView(withText(Constants.ADD_NEW_ITEM)).check(matches(isDisplayed()))
+        onView(withText(Constants.ENTER_ITEM)).check(matches(isDisplayed()))
+        onView(withText(Constants.SUBMIT)).check(matches(isDisplayed()))
 
         Intents.release()
     }
-
-
-
 }
