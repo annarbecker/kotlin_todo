@@ -33,6 +33,7 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
     androidTestCompile 'com.android.support.test.espresso:espresso-intents:3.0.1'
     implementation 'com.android.support:design:26.1.0'
+    testCompile 'org.robolectric:robolectric:3.0'
 }
 
 
