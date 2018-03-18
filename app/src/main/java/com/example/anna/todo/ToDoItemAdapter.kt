@@ -11,6 +11,9 @@ import android.widget.TextView
 
 /**
  * Created by anna on 3/10/18.
+ *
+ * Use the ToDoItemAdapter to extract data from the ToDoItem object, then assign values to the views
+ * in each row of the ListView.
  */
 class ToDoItemAdapter(context: Context, toDoItemList: MutableList<ToDoItem>): BaseAdapter() {
     // val is like constant variable and its known as immutable in kotlin and can be initialized
