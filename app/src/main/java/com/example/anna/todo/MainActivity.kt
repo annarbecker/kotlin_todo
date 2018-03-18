@@ -7,8 +7,6 @@ import android.util.Log
 import android.view.View
 import android.widget.EditText
 import android.widget.ListView
-import android.widget.Spinner
-import android.widget.Toast
 import com.google.firebase.database.*
 
 class MainActivity : AppCompatActivity(), ItemRowListener {
@@ -24,7 +22,7 @@ class MainActivity : AppCompatActivity(), ItemRowListener {
         setContentView(R.layout.activity_main)
 
         // define floating action button
-        val floatingActionButton = this.findViewById<View>(R.id.floatingActionButton)
+        val floatingActionButton = this.findViewById<View>(R.id.addNewItemButton)
         this.listViewItems = findViewById<View>(R.id.items_list) as ListView
 
         // set a click listener on the button
@@ -51,7 +49,7 @@ class MainActivity : AppCompatActivity(), ItemRowListener {
 
         alert.setView(itemEditText)
 
-        alert.setPositiveButton("Submit") {dialog, _ ->
+        alert.setPositiveButton(Constants.SUBMIT) {dialog, _ ->
             val toDoItem = ToDoItem.create()
             toDoItem.itemText = itemEditText.text.toString()
 
