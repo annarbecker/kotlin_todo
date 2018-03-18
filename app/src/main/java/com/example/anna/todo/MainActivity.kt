@@ -69,7 +69,7 @@ class MainActivity : AppCompatActivity(), ItemRowListener {
         alert.show()
     }
 
-    public fun createNewToDoItem(itemText: String): ToDoItem {
+    fun createNewToDoItem(itemText: String): ToDoItem {
         val toDoItem = ToDoItem.create()
         toDoItem.itemText = itemText
         return toDoItem
